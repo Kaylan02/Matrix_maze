@@ -1,3 +1,5 @@
+from prefect import task, flow
+
 
 m = 4
 n = 4
@@ -11,8 +13,10 @@ grid = [[8, 8, -1, 9],
 
 path = []
 
-print(grid)                 ####
+#old grid
+print(grid)
 
+@task(log_prints=True)
 def find_empty_space(grid):
     for i, row in enumerate(grid):
         for j, val in enumerate(row):
@@ -20,6 +24,7 @@ def find_empty_space(grid):
                 return [i, j]
     return None
 
+@task(log_prints=True)
 def find_object(grid):
     for i, row in enumerate(grid):
         for j, val in enumerate(row):
@@ -27,14 +32,17 @@ def find_object(grid):
                 return [i, j]
     return None
 
-# Generates valid moves from the current position within the grid boundaries.
+
+@task(log_prints=True)
 def valid_moves(x, y, m, n):
+    # Generates valid moves from the current position within the grid boundaries.
     if 0 <= x < m and 0 <= y < n:  # Check if the new position is within the grid
         # print(0 <= x < m and 0 <= y < n)
         return [x, y]
     else:
         return None
 
+@task(log_prints=True)
 def left(grid, path):
     empty = find_empty_space(grid)
     leftval = valid_moves(empty[0],empty[1] - 1, m, n)
@@ -44,7 +52,8 @@ def left(grid, path):
             grid[empty[0]][empty[1]] = grid[leftval[0]][leftval[1]]
             grid[leftmostval[0]][leftmostval[1]] = -1
             path += [grid[leftval[0]][leftval[1]]]
-        
+
+@task(log_prints=True)       
 def down(grid,path):
     empty = find_empty_space(grid)       
     downval  = valid_moves(empty[0] + 1,empty[1], m, n)
@@ -55,7 +64,7 @@ def down(grid,path):
             grid[downmostval[0]][downmostval[1]] = -1
             path += [grid[downval[0]][downval[1]]]
             
-        
+@task(log_prints=True)       
 def right(grid,path):
     empty = find_empty_space(grid)
     rightval = valid_moves(empty[0],empty[1] + 1, m, n)
@@ -65,7 +74,9 @@ def right(grid,path):
             grid[empty[0]][empty[1]] = grid[rightval[0]][rightval[1]] 
             grid[rightmostval[0]][rightmostval[1]] = -1
             path += [grid[rightval[0]][rightval[1]]]
-            
+
+
+@task(log_prints=True)           
 def up(grid,path):
     empty = find_empty_space(grid)
     upval = valid_moves(empty[0] - 1,empty[1], m, n)
@@ -75,7 +86,8 @@ def up(grid,path):
             grid[empty[0]][empty[1]] = grid[upval[0]][upval[1]] 
             grid[upmostval[0]][upmostval[1]] = -1
             path += [grid[upval[0]][upval[1]]]
-            
+
+@task(log_prints=True)            
 def space_by_object(grid, target_row, target_col):
 
     empty = find_empty_space(grid)
@@ -118,7 +130,8 @@ def space_by_object(grid, target_row, target_col):
      
 
 # print(space_by_object(grid))
-        
+
+@flow(log_prints=True)       
 def move():
     run = True
     while run:
@@ -132,5 +145,6 @@ def move():
 
 
 move()
-print(grid)     ###
+#new grid and path
+print(grid) 
 print(path)
